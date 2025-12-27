@@ -129,6 +129,56 @@ html, body {
   margin-top: 22px;
 }
 
+/* Responsive utilities */
+.lg-hidden {
+  display: block;
+}
+.lg-block {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .lg-hidden {
+    display: none;
+  }
+  .lg-block {
+    display: block;
+  }
+}
+
+/* Home page responsive adjustments */
+.max-sm-scale {
+  transform: scale(0.75);
+  transform-origin: center;
+  padding: 24px;
+}
+@media (min-width: 640px) {
+  .max-sm-scale {
+    transform: scale(1);
+    padding: 0;
+  }
+}
+
+.md-fixed-center {
+  position: relative;
+}
+@media (min-width: 768px) {
+  .md-fixed-center {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.home-heading-responsive {
+  font-size: 60px;
+}
+@media (min-width: 1024px) {
+  .home-heading-responsive {
+    font-size: 100px;
+  }
+}
+
 /* Input pages */
 .input-page {
   padding-top: 140px;
@@ -313,3 +363,35 @@ html, body {
 }
 
 .right-fixed{position:fixed;right:26px;bottom:62px;z-index:50;}
+
+/* Spin animations for diamond images */
+@keyframes spin {
+  to { transform: rotate(1turn); }
+}
+.animate-spin-slow {
+  animation: spin 50s linear infinite;
+}
+.animate-spin-slower {
+  animation: spin 70s linear infinite;
+}
+.animate-spin-slowest {
+  animation: spin 85s linear infinite;
+}
+
+/* Rotation utilities */
+.rotate-185 { transform: rotate(185deg); }
+.rotate-190 { transform: rotate(190deg); }
+.rotate-195 { transform: rotate(195deg); }
+.rotate-200 { transform: rotate(200deg); }
+.rotate-205 { transform: rotate(205deg); }
+
+/* Hover scale for icons */
+.hover\:scale-108:hover {
+  transform: scale(1.08);
+}
+.duration-700 {
+  transition-duration: 0.7s;
+}
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}

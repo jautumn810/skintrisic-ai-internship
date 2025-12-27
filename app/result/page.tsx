@@ -1,70 +1,37 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Header from '@/components/Header'
-import BackButton from '@/components/BackButton'
+import SiteHeader from '@/components/SiteHeader'
+import Image from 'next/image'
 import Link from 'next/link'
 
 export default function ResultPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysisData, setAnalysisData] = useState<any>(null)
   const imageInputRef = useRef<HTMLInputElement>(null)
-  const cameraIconRef = useRef<HTMLDivElement>(null)
-  const galleryIconRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const imageInput = imageInputRef.current
-    const cameraIcon = cameraIconRef.current
-    const galleryIcon = galleryIconRef.current
+    const cameraIcon = document.querySelector('img[alt="Camera Icon"]')
+    const galleryIcon = document.querySelector('img[alt="Photo Upload Icon"]')
+    const previewDiv = document.querySelector('.preview-image-box')
+    const proceedLink = document.getElementById('proceed-link')
 
-    const handleImageUpload = async (file: File) => {
+    const handleImageUpload = (file: File) => {
       if (file && file.type.startsWith('image/')) {
-        // Read file for preview
         const reader = new FileReader()
-        let imageDataUrl = ''
         reader.onload = (e) => {
           const result = e.target?.result as string
-          imageDataUrl = result
           setImagePreview(result)
+          if (previewDiv) {
+            ;(previewDiv as HTMLElement).style.backgroundImage = `url(${result})`
+            ;(previewDiv as HTMLElement).style.backgroundSize = 'cover'
+            ;(previewDiv as HTMLElement).style.backgroundPosition = 'center'
+          }
+          if (proceedLink) {
+            proceedLink.classList.remove('hidden')
+          }
         }
         reader.readAsDataURL(file)
-
-        // Phase 2: POST /api/analyze - Analyze image
-        setIsAnalyzing(true)
-        try {
-          const userId = sessionStorage.getItem('userId')
-          const formData = new FormData()
-          formData.append('image', file)
-          if (userId) {
-            formData.append('userId', userId)
-          }
-
-          const response = await fetch('/api/analyze', {
-            method: 'POST',
-            body: formData,
-          })
-
-          const data = await response.json()
-
-          if (response.ok && data.success) {
-            setAnalysisData(data.data.analysis)
-            // Store analysis data in sessionStorage for use in select page
-            sessionStorage.setItem('analysisData', JSON.stringify(data.data.analysis))
-            sessionStorage.setItem(
-              'imagePreview',
-              data.data.imagePreview || imageDataUrl
-            )
-          } else {
-            console.error('Error analyzing image:', data.error)
-            alert('Failed to analyze image. Please try again.')
-          }
-        } catch (error) {
-          console.error('Error uploading image:', error)
-          alert('An error occurred while analyzing the image. Please try again.')
-        } finally {
-          setIsAnalyzing(false)
-        }
       }
     }
 
@@ -75,93 +42,8 @@ export default function ResultPage() {
       }
     }
 
-    const handleCameraClick = async () => {
-      // Phase 3: Take a selfie using camera
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user' }, // Front-facing camera for selfie
-        })
-
-        // Create video element to show camera preview
-        const video = document.createElement('video')
-        video.srcObject = stream
-        video.autoplay = true
-        video.style.position = 'fixed'
-        video.style.top = '0'
-        video.style.left = '0'
-        video.style.width = '100%'
-        video.style.height = '100%'
-        video.style.zIndex = '9999'
-        video.style.objectFit = 'cover'
-        document.body.appendChild(video)
-
-        // Create capture button
-        const captureButton = document.createElement('button')
-        captureButton.textContent = 'Capture'
-        captureButton.style.position = 'fixed'
-        captureButton.style.bottom = '50px'
-        captureButton.style.left = '50%'
-        captureButton.style.transform = 'translateX(-50%)'
-        captureButton.style.zIndex = '10000'
-        captureButton.style.padding = '15px 30px'
-        captureButton.style.backgroundColor = '#1A1B1C'
-        captureButton.style.color = 'white'
-        captureButton.style.border = 'none'
-        captureButton.style.borderRadius = '5px'
-        captureButton.style.cursor = 'pointer'
-        document.body.appendChild(captureButton)
-
-        // Create cancel button
-        const cancelButton = document.createElement('button')
-        cancelButton.textContent = 'Cancel'
-        cancelButton.style.position = 'fixed'
-        cancelButton.style.bottom = '50px'
-        cancelButton.style.left = 'calc(50% + 100px)'
-        cancelButton.style.transform = 'translateX(-50%)'
-        cancelButton.style.zIndex = '10000'
-        cancelButton.style.padding = '15px 30px'
-        cancelButton.style.backgroundColor = '#666'
-        cancelButton.style.color = 'white'
-        cancelButton.style.border = 'none'
-        cancelButton.style.borderRadius = '5px'
-        cancelButton.style.cursor = 'pointer'
-        document.body.appendChild(cancelButton)
-
-        // Handle capture
-        captureButton.onclick = () => {
-          const canvas = document.createElement('canvas')
-          canvas.width = video.videoWidth
-          canvas.height = video.videoHeight
-          const ctx = canvas.getContext('2d')
-          if (ctx) {
-            ctx.drawImage(video, 0, 0)
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const file = new File([blob], 'selfie.jpg', { type: 'image/jpeg' })
-                handleImageUpload(file)
-              }
-            }, 'image/jpeg', 0.95)
-
-            // Cleanup
-            stream.getTracks().forEach((track) => track.stop())
-            document.body.removeChild(video)
-            document.body.removeChild(captureButton)
-            document.body.removeChild(cancelButton)
-          }
-        }
-
-        // Handle cancel
-        cancelButton.onclick = () => {
-          stream.getTracks().forEach((track) => track.stop())
-          document.body.removeChild(video)
-          document.body.removeChild(captureButton)
-          document.body.removeChild(cancelButton)
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error)
-        // Fallback to file input if camera access fails
-        imageInput?.click()
-      }
+    const handleCameraClick = () => {
+      imageInput?.click()
     }
 
     const handleGalleryClick = () => {
@@ -195,155 +77,313 @@ export default function ResultPage() {
 
   return (
     <>
-      <Header />
-      <div className="min-h-[92vh] flex flex-col bg-white relative md:pt-[64px] justify-center">
-        {/* Rotating dotted geometric pattern background */}
-        <div 
-          className="absolute inset-0 opacity-[0.15] animate-pattern-rotate"
-          style={{
-            backgroundImage: `
-              repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(160, 164, 171, 0.3) 15px, rgba(160, 164, 171, 0.3) 16px),
-              repeating-linear-gradient(-45deg, transparent, transparent 15px, rgba(160, 164, 171, 0.3) 15px, rgba(160, 164, 171, 0.3) 16px)
-            `,
-            backgroundSize: '30px 30px',
-            backgroundPosition: 'center',
-            transformOrigin: 'center center',
-          }}
-        />
-        
-        <div className="absolute top-2 left-9 md:left-8 text-left z-10">
-          <p className="font-semibold text-xs md:text-sm">TO START ANALYSIS</p>
+      <SiteHeader section="INTRO" />
+      <div style={{
+        minHeight: '92vh',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: 'white',
+        position: 'relative',
+        paddingTop: '64px',
+        justifyContent: 'center'
+      }} className="md:pt-[64px]">
+        <div style={{
+          position: 'absolute',
+          top: '8px',
+          left: '36px'
+        }} className="absolute top-2 left-9 md:left-8 text-left">
+          <p style={{
+            fontWeight: 600,
+            fontSize: '12px'
+          }} className="font-semibold text-xs md:text-sm">TO START ANALYSIS</p>
         </div>
-        
-        {/* Main content - vertically stacked */}
-        <div className="flex flex-col items-center justify-center relative z-10 space-y-16 md:space-y-20 py-20">
-          {/* Camera/Face Scan Section */}
-          <div className="relative flex flex-col items-center justify-center">
-            {/* Rotating dotted square frame */}
-            <div 
-              className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] border border-dotted border-[#A0A4AB] animate-pattern-rotate"
-              style={{
-                transformOrigin: 'center center',
-              }}
+        <div style={{
+          flex: '0.4',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          marginBottom: 0,
+          gap: '-20px'
+        }} className="flex-[0.4] md:flex-1 flex flex-col md:flex-row items-center xl:justify-center relative mb-0 md:mb-30 space-y-[-20px] md:space-y-0">
+          {/* Left section - Camera */}
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }} className="relative md:absolute md:left-[55%] lg:left-[50%] xl:left-[40%] md:-translate-y-[0%] -translate-y-[1%] md:-translate-x-full flex flex-col items-center justify-center">
+            <div style={{
+              width: '270px',
+              height: '270px'
+            }} className="w-[270px] h-[270px] md:w-[482px] md:h-[482px]"></div>
+            <Image
+              alt="Diamond Large"
+              width={482}
+              height={482}
+              className="absolute w-[270px] h-[270px] md:w-[482px] md:h-[482px] animate-spin-slow rotate-200"
+              style={{ color: 'transparent' }}
+              src="/ResDiamond-large.png"
             />
-            {/* Camera lens icon centered in frame */}
-            <div 
-              ref={cameraIconRef}
-              className="absolute inset-0 flex items-center justify-center cursor-pointer"
-            >
-              <div className="w-[100px] h-[100px] md:w-[136px] md:h-[136px] flex items-center justify-center hover:scale-110 transition-transform duration-300">
-                <svg width="136" height="136" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#1A1B1C]">
-                  {/* Outer lens ring */}
-                  <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="2"/>
-                  {/* Middle lens ring */}
-                  <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="1.5"/>
-                  {/* Inner lens aperture */}
-                  <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1"/>
-                  {/* Center dot */}
-                  <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                  {/* Lens segments/iris blades */}
-                  <line x1="12" y1="2" x2="12" y2="8" stroke="currentColor" strokeWidth="1"/>
-                  <line x1="12" y1="16" x2="12" y2="22" stroke="currentColor" strokeWidth="1"/>
-                  <line x1="2" y1="12" x2="8" y2="12" stroke="currentColor" strokeWidth="1"/>
-                  <line x1="16" y1="12" x2="22" y2="12" stroke="currentColor" strokeWidth="1"/>
-                </svg>
-              </div>
-            </div>
-            {/* Text below icon */}
-            <div className="mt-6 text-center">
-              <p className="text-xs md:text-sm font-normal leading-[24px]">
-                ALLOW A.I.
-                <br />
-                TO SCAN YOUR FACE
-              </p>
-            </div>
-          </div>
-
-          {/* Gallery Section */}
-          <div className="relative flex flex-col items-center justify-center">
-            {/* Rotating dotted square frame */}
-            <div 
-              className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] border border-dotted border-[#A0A4AB] animate-pattern-rotate"
-              style={{
-                transformOrigin: 'center center',
-              }}
+            <Image
+              alt="DiamondMedium"
+              width={444}
+              height={444}
+              className="absolute w-[230px] h-[230px] md:w-[444.34px] md:h-[444.34px] animate-spin-slower rotate-190"
+              style={{ color: 'transparent' }}
+              src="/ResDiamond-medium.png"
             />
-            {/* Gallery icon centered in frame */}
-            <div 
-              ref={galleryIconRef}
-              className="absolute inset-0 flex items-center justify-center cursor-pointer"
-            >
-              <div className="w-[100px] h-[100px] md:w-[136px] md:h-[136px] flex items-center justify-center hover:scale-110 transition-transform duration-300">
-                <svg width="136" height="136" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#1A1B1C]">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
+            <Image
+              alt="DiamondSmall"
+              width={405}
+              height={405}
+              className="absolute w-[190px] h-[190px] md:w-[405.18px] md:h-[405.18px] animate-spin-slowest"
+              style={{ color: 'transparent' }}
+              src="/ResDiamond-small.png"
+            />
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }} className="absolute inset-0 flex flex-col items-center justify-center">
+              <Image
+                alt="Camera Icon"
+                width={136}
+                height={136}
+                className="absolute w-[100px] h-[100px] md:w-[136px] md:h-[136px] hover:scale-108 duration-700 ease-in-out cursor-pointer"
+                style={{ color: 'transparent' }}
+                src="/camera-icon.png"
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: '1%',
+                right: '90px'
+              }} className="absolute bottom-[1%] right-[90px] md:top-[30.9%] md:right-[-12px] translate-y-[-20px]">
+                <p style={{
+                  fontSize: '12px',
+                  fontWeight: 400,
+                  marginTop: '4px',
+                  lineHeight: '24px'
+                }} className="text-xs md:text-sm font-normal mt-1 leading-[24px]">ALLOW A.I.<br/>TO SCAN YOUR FACE</p>
+                <Image
+                  alt="Scan Line"
+                  width={66}
+                  height={59}
+                  className="absolute hidden md:block md:right-[143px] md:top-[20px]"
+                  style={{ color: 'transparent' }}
+                  src="/ResScanLine.png"
+                />
               </div>
             </div>
-            {/* Text below icon */}
-            <div className="mt-6 text-center">
-              <p className="text-xs md:text-sm font-normal leading-[24px]">
-                ALLOW A.I.
-                <br />
-                ACCESS GALLERY
-              </p>
+          </div>
+          {/* Right section - Gallery */}
+          <div style={{
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            marginTop: '48px',
+            justifyContent: 'center'
+          }} className="relative md:absolute md:left-[45%] lg:left-[50%] xl:left-[55%] flex flex-col items-center mt-12 md:mt-0 justify-center md:-translate-y-[0%] -translate-y-[10%] transition-opacity duration-300 opacity-100">
+            <div style={{
+              width: '270px',
+              height: '270px'
+            }} className="w-[270px] h-[270px] md:w-[482px] md:h-[482px]"></div>
+            <Image
+              alt="Diamond Large"
+              width={484}
+              height={484}
+              className="absolute w-[270px] h-[270px] md:w-[482px] md:h-[482px] animate-spin-slow rotate-205"
+              style={{ color: 'transparent' }}
+              src="/ResDiamond-large.png"
+            />
+            <Image
+              alt="DiamondMedium"
+              width={448}
+              height={448}
+              className="absolute w-[230px] h-[230px] md:w-[444.34px] md:h-[444.34px] animate-spin-slower rotate-195"
+              style={{ color: 'transparent' }}
+              src="/ResDiamond-medium.png"
+            />
+            <Image
+              alt="DiamondSmall"
+              width={408}
+              height={408}
+              className="absolute w-[190px] h-[190px] md:w-[405.18px] md:h-[405.18px] animate-spin-slowest"
+              style={{ color: 'transparent' }}
+              src="/ResDiamond-small.png"
+            />
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }} className="absolute inset-0 flex flex-col items-center justify-center">
+              <Image
+                alt="Photo Upload Icon"
+                width={136}
+                height={136}
+                className="absolute w-[100px] h-[100px] md:w-[136px] md:h-[136px] hover:scale-108 duration-700 ease-in-out cursor-pointer"
+                style={{ color: 'transparent' }}
+                src="/gallery-icon.png"
+              />
+              <div style={{
+                position: 'absolute',
+                top: '75%'
+              }} className="absolute top-[75%] md:top-[70%] md:left-[17px] translate-y-[-10px]">
+                <p style={{
+                  fontSize: '12px',
+                  fontWeight: 400,
+                  marginTop: '8px',
+                  lineHeight: '24px',
+                  textAlign: 'right'
+                }} className="text-[12px] md:text-[14px] font-normal mt-2 leading-[24px] text-right">ALLOW A.I.<br/>ACCESS GALLERY</p>
+                <Image
+                  alt="Gallery Line"
+                  width={66}
+                  height={59}
+                  className="absolute hidden md:block md:left-[120px] md:bottom-[39px]"
+                  style={{ color: 'transparent' }}
+                  src="/ResGalleryLine.png"
+                />
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Preview section - top right */}
-        <div className="absolute top-[-75px] right-7 md:top-[-50px] md:right-8 transition-opacity duration-300 opacity-100 z-10">
-          <h1 className="text-xs md:text-sm font-normal mb-1">Preview</h1>
-          <div
-            className="w-24 h-24 md:w-32 md:h-32 border border-gray-300 overflow-hidden relative"
-            style={{
-              backgroundImage: imagePreview ? `url(${imagePreview})` : 'none',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            {isAnalyzing && (
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                <div className="text-white text-xs">Analyzing...</div>
-              </div>
-            )}
+          {/* Preview box */}
+          <div style={{
+            position: 'absolute',
+            top: '-75px',
+            right: '28px'
+          }} className="absolute top-[-75px] right-7 md:top-[-50px] md:right-8 transition-opacity duration-300 opacity-100">
+            <h1 style={{
+              fontSize: '12px',
+              fontWeight: 400,
+              marginBottom: '4px'
+            }} className="text-xs md:text-sm font-normal mb-1">Preview</h1>
+            <div style={{
+              width: '96px',
+              height: '96px',
+              border: '1px solid #d1d5db',
+              overflow: 'hidden'
+            }} className="w-24 h-24 md:w-32 md:h-32 border border-gray-300 overflow-hidden preview-image-box"></div>
           </div>
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            id="image-input"
+          />
         </div>
-
-        {/* Hidden file input */}
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          id="image-input"
-        />
-
-        {/* Bottom navigation */}
-        <div className="pt-4 md:pt-0 pb-8 bg-white sticky md:static bottom-30.5 mb-0 md:mb-0 z-10">
-          <div className="absolute bottom-8 w-full flex justify-between md:px-9 px-13">
-            <BackButton href="/thank-you" />
-            {imagePreview && (
-              <Link href="/select" id="proceed-link">
-                <div>
-                  <div className="w-12 h-12 flex items-center justify-center border border-[#1A1B1C] rotate-45 scale-[1] sm:hidden">
-                    <span className="rotate-[-45deg] text-xs font-semibold sm:hidden">
-                      PROCEED
-                    </span>
-                  </div>
-                  <div className="group hidden sm:flex flex-row relative justify-center items-center">
-                    <span className="text-sm font-semibold hidden sm:block mr-5">
-                      PROCEED
-                    </span>
-                    <div className="w-12 h-12 hidden sm:flex justify-center border border-[#1A1B1C] rotate-45 scale-[0.85] group-hover:scale-[0.92] ease duration-300"></div>
-                    <span className="absolute right-[15px] bottom-[13px] scale-[0.9] hidden sm:block group-hover:scale-[0.92] ease duration-300">
-                      ▶
-                    </span>
-                  </div>
+        <div style={{
+          paddingTop: '16px',
+          paddingBottom: '32px',
+          backgroundColor: 'white',
+          position: 'sticky',
+          bottom: '122px',
+          marginBottom: 0
+        }} className="pt-4 md:pt-0 pb-8 bg-white sticky md:static bottom-30.5 mb-0 md:mb-0">
+          <div style={{
+            position: 'absolute',
+            bottom: '32px',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            paddingLeft: '52px',
+            paddingRight: '52px'
+          }} className="absolute bottom-8 w-full flex justify-between md:px-9 px-13">
+            <Link className="relative" aria-label="Back" href="/testing">
+              <div>
+                <div style={{
+                  position: 'relative',
+                  width: '48px',
+                  height: '48px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #1A1B1C',
+                  transform: 'rotate(45deg) scale(1)'
+                }} className="relative w-12 h-12 flex items-center justify-center border border-[#1A1B1C] rotate-45 scale-[1] sm:hidden">
+                  <span style={{
+                    transform: 'rotate(-45deg)',
+                    fontSize: '12px',
+                    fontWeight: 600
+                  }} className="rotate-[-45deg] text-xs font-semibold sm:hidden">BACK</span>
                 </div>
-              </Link>
-            )}
+                <div className="group hidden sm:flex flex-row relative justify-center items-center">
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'none',
+                    justifyContent: 'center',
+                    border: '1px solid #1A1B1C',
+                    transform: 'rotate(45deg) scale(0.85)'
+                  }} className="w-12 h-12 hidden sm:flex justify-center border border-[#1A1B1C] rotate-45 scale-[0.85] group-hover:scale-[0.92] ease duration-300"></div>
+                  <span style={{
+                    position: 'absolute',
+                    left: '15px',
+                    bottom: '13px',
+                    transform: 'scale(0.9) rotate(180deg)',
+                    display: 'none'
+                  }} className="absolute left-[15px] bottom-[13px] scale-[0.9] rotate-180 hidden sm:block group-hover:scale-[0.92] ease duration-300">▶</span>
+                  <span style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    display: 'none',
+                    marginLeft: '24px'
+                  }} className="text-sm font-semibold hidden sm:block ml-6">BACK</span>
+                </div>
+              </div>
+            </Link>
+            <Link href="/select" id="proceed-link" className="hidden">
+              <div>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #1A1B1C',
+                  transform: 'rotate(45deg) scale(1)'
+                }} className="w-12 h-12 flex items-center justify-center border border-[#1A1B1C] rotate-45 scale-[1] sm:hidden">
+                  <span style={{
+                    transform: 'rotate(-45deg)',
+                    fontSize: '12px',
+                    fontWeight: 600
+                  }} className="rotate-[-45deg] text-xs font-semibold sm:hidden">PROCEED</span>
+                </div>
+                <div className="group hidden sm:flex flex-row relative justify-center items-center">
+                  <span style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    display: 'none',
+                    marginRight: '20px'
+                  }} className="text-sm font-semibold hidden sm:block mr-5">PROCEED</span>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    display: 'none',
+                    justifyContent: 'center',
+                    border: '1px solid #1A1B1C',
+                    transform: 'rotate(45deg) scale(0.85)'
+                  }} className="w-12 h-12 hidden sm:flex justify-center border border-[#1A1B1C] rotate-45 scale-[0.85] group-hover:scale-[0.92] ease duration-300"></div>
+                  <span style={{
+                    position: 'absolute',
+                    right: '15px',
+                    bottom: '13px',
+                    transform: 'scale(0.9)',
+                    display: 'none'
+                  }} className="absolute right-[15px] bottom-[13px] scale-[0.9] hidden sm:block group-hover:scale-[0.92] ease duration-300">▶</span>
+                </div>
+              </div>
+            </Link>
           </div>
         </div>
       </div>

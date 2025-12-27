@@ -1,0 +1,173 @@
+# Skinstric AI Website Replication - Cursor Rules
+
+## PRIMARY OBJECTIVE
+Replicate the website at https://skinstric-wandag.vercel.app/ EXACTLY as it appears. Do not deviate from the original design, layout, styling, fonts, spacing, colors, or any visual elements.
+
+## TECH STACK
+- React.js (18.3.1+)
+- Next.js (15.0.0+)
+- TypeScript (5.5.4+)
+- All dependencies are already installed
+
+## CRITICAL REQUIREMENTS
+
+### 1. EXACT REPLICATION RULES
+- **DO NOT DEVIATE** from the original website design
+- Match ALL HTML structure exactly
+- Match ALL CSS styling exactly (colors, fonts, sizes, spacing, margins, padding)
+- Match ALL layout positioning exactly
+- Match ALL font sizes, weights, letter-spacing, line-heights exactly
+- Match ALL component dimensions, borders, backgrounds exactly
+- Use screenshots from December 27, 2025 (12-27) located at: `c:\Users\jautu\OneDrive\Desktop\Screenshot 2025-12-27*.png` as reference for exact styling
+- Cross-reference the live website at https://skinstric-wandag.vercel.app/ for verification
+
+### 2. PDF TECHNICAL REQUIREMENTS
+Follow the PDF file instructions (`148a6aa0-b878-4fe9-92c9-ef1395c88e3c-Skinstric.pdf`) which includes:
+
+**Phase 1: Level 1 Initial Project Setup**
+- Initial project setup
+- UI Design selection figure
+- Backend API working for feature and location(s)
+- Form validation
+
+**Phase 2: Level 2: Upload Your Image**
+- Upload image in double format to the job guide
+- All demographics page with scores, Race, Age, Plausibility
+- Allow users to update their ID/ToDo attributes if AI prediction is incorrect
+
+**Phase 3: Level 3: Take a Selfie**
+- Use camera to take a selfie instead of uploading an image
+- Table and module responsiveness
+
+### 3. DESIGN SPECIFICATIONS FROM CODEBASE ANALYSIS
+
+#### Header Component
+- Fixed position header at top
+- Height: 110px
+- Background: #fff (white)
+- Left side: "SKINSTRIC" brand name with brackets and section label (e.g., "[ INTRO ]")
+- Right side: "ENTER CODE" button
+- Button: width 210px, height 58px, background #111, color #fff
+- Font weights: 800 (brand), 600 (section)
+- Letter-spacing: 0.06em (brand), 0.12em (section), 0.04em (button)
+- Padding: 0 28px
+
+#### Typography
+- Font family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif
+- Base colors: #111 (black), #fff (white), rgba(0,0,0,0.45) for muted text
+- Font weights: 300 (light titles), 700-800 (bold headings/buttons)
+
+#### Home Page
+- Center diamond shape geometric outline
+- Large title: "Sophisticated skincare" - clamp(56px, 10vw, 90px), font-weight 300, line-height 0.95
+- Subtitle: rgba(0,0,0,0.45), font-size 22px, line-height 1.5
+- Left/right diamond buttons: 150px x 150px, rotated 45deg, border 3px solid rgba(0,0,0,0.9)
+- White diamond button: background white, border black
+- Black diamond button: background #111, border #111, text white
+- Button labels: font-weight 800, letter-spacing 0.06em, font-size 18px
+
+#### Input Pages
+- Padding-top: 140px
+- Max-width: 980px
+- Font-weight: 800
+- Letter-spacing: 0.06em
+- Underline border: 3px solid rgba(0,0,0,0.9)
+
+#### Demographics Page
+- Title: clamp(44px, 8vw, 86px), font-weight 300, letter-spacing 0.02em
+- Subtitle: font-size 18px, letter-spacing 0.08em, color rgba(0,0,0,0.75)
+- Cards: background #efefef, border 2px solid rgba(0,0,0,0.55)
+- Selected card: background #131313, color white
+- Arc meter: size 720px, stroke 18px
+- Table rows: background #efefef, selected rows #131313 with white text
+- Radio buttons: 16px x 16px, rotated 45deg, border 2px
+
+#### Permissions/AI Analysis Pages
+- Preview box: 220px x 270px, border 3px solid rgba(0,0,0,0.18)
+- AI icon: 180px x 180px
+- Rotating dotted squares animation: 34s, 44s, 56s durations
+
+### 4. COLOR PALETTE (EXACT VALUES)
+- Primary black: #111 or #131313
+- Primary white: #fff or #FCFCFC
+- Background: #fff (white pages), #efefef (card backgrounds)
+- Text: #111 (primary), rgba(0,0,0,0.45) (muted), rgba(0,0,0,0.75) (secondary)
+- Borders: rgba(0,0,0,0.9), rgba(0,0,0,0.55), rgba(0,0,0,0.18)
+- Selected states: #131313 background with white text
+
+### 5. SPACING & LAYOUT
+- Page padding-top: 140px (accounts for fixed header)
+- Container max-width: 980px (input pages), 860px (demographics)
+- Side padding: 28px
+- Fixed button positions: left: 26px, right: 26px, bottom: 62px
+- Gaps: Use exact pixel values from original CSS
+
+### 6. COMPONENTS STRUCTURE
+- Use existing component structure:
+  - `components/SiteHeader.tsx` - Header component
+  - `components/DiamondNav.tsx` - Diamond button navigation
+  - `components/BackButton.tsx` - Back navigation
+- All pages should use these components consistently
+
+### 7. ANIMATIONS
+- Slow spin animation: 34s, 44s, 56s for rotating squares
+- Blink animation: 1.05s steps(1) for caret
+- Maintain all existing animations from globals.css
+
+### 8. RESPONSIVE DESIGN
+- Use clamp() for responsive font sizes
+- Maintain exact breakpoints and responsive behavior
+- Ensure table and module responsiveness as per Phase 3 requirements
+
+### 9. FILE STRUCTURE
+Follow Next.js App Router structure:
+- `/app/page.tsx` - Home page
+- `/app/analysis/introduce/page.tsx` - Introduction
+- `/app/analysis/permissions/page.tsx` - Permissions
+- `/app/analysis/image/page.tsx` - Image upload
+- `/app/analysis/selfie/page.tsx` - Selfie capture
+- `/app/analysis/demographics/page.tsx` - Demographics analysis
+- `/app/analysis/city/page.tsx` - City selection
+- `/app/summary/page.tsx` - Summary page
+- `/app/globals.css` - Global styles
+
+### 10. API INTEGRATION
+- Follow PDF requirements for backend API integration
+- Store user information and demographics
+- Allow user corrections to AI predictions
+- Use existing API routes in `/app/api/` directory
+
+### 11. QUALITY CHECKS BEFORE COMMITTING
+- [ ] Compare side-by-side with https://skinstric-wandag.vercel.app/
+- [ ] Verify font sizes match exactly (use browser inspector)
+- [ ] Verify colors match exactly (use color picker)
+- [ ] Verify spacing and padding match exactly
+- [ ] Verify all interactive elements work correctly
+- [ ] Check responsive behavior matches original
+- [ ] Verify all animations work
+- [ ] Cross-reference with screenshots for accuracy
+
+### 12. STRICT RULES
+- **NEVER** change colors, fonts, or spacing without exact match to original
+- **NEVER** use Tailwind classes that don't match exact pixel values
+- **ALWAYS** use inline styles or CSS classes that match exact values
+- **ALWAYS** reference screenshots and live site before making styling decisions
+- **ALWAYS** maintain exact HTML structure and nesting
+- **NEVER** add features or design elements not in the original
+- **ALWAYS** preserve exact CSS properties (transform, rotation, positioning)
+
+### 13. SCREENSHOT REFERENCE
+- 12 screenshots available at: `c:\Users\jautu\OneDrive\Desktop\Screenshot 2025-12-27*.png`
+- Use these as the primary visual reference for exact styling
+- Screenshot 2025-12-27 014856.png shows the demographics page with exact styling
+
+### 14. WHEN IN DOUBT
+1. Check the live website: https://skinstric-wandag.vercel.app/
+2. Review the screenshots in the Desktop folder
+3. Inspect the original CSS values in globals.css
+4. Match pixel-perfect to the reference material
+5. DO NOT guess or approximate - use exact values
+
+## REMINDER
+This is an EXACT REPLICATION project. The goal is pixel-perfect accuracy. Every color, spacing, font size, and layout decision must match the original website exactly. Do not introduce any creative deviations or "improvements" - only replicate what exists.
+

@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Header from '@/components/Header'
-import BackButton from '@/components/BackButton'
+import SiteHeader from '@/components/SiteHeader'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -73,10 +72,21 @@ export default function SelectPage() {
   if (!analysisData) {
     return (
       <>
-        <Header />
+        <SiteHeader section="INTRO" />
         <div className="min-h-[90vh] flex flex-col items-center justify-center">
           <p>No analysis data found. Please upload an image first.</p>
-          <BackButton href="/result" />
+          <Link href="/result">
+            <div>
+              <div className="relative w-12 h-12 flex items-center justify-center border border-[#1A1B1C] rotate-45 scale-[1] sm:hidden">
+                <span className="rotate-[-45deg] text-xs font-semibold sm:hidden">BACK</span>
+              </div>
+              <div className="group hidden sm:flex flex-row relative justify-center items-center">
+                <div className="w-12 h-12 hidden sm:flex justify-center border border-[#1A1B1C] rotate-45 scale-[0.85] group-hover:scale-[0.92] ease duration-300"></div>
+                <span className="absolute left-[15px] bottom-[13px] scale-[0.9] rotate-180 hidden sm:block group-hover:scale-[0.92] ease duration-300">▶</span>
+                <span className="text-sm font-semibold hidden sm:block ml-6">BACK</span>
+              </div>
+            </div>
+          </Link>
         </div>
       </>
     )
@@ -84,7 +94,7 @@ export default function SelectPage() {
 
   return (
     <>
-      <Header />
+      <SiteHeader section="INTRO" />
       <div>
         <div className="absolute top-10 left-8 text-left mt-5">
           <h1 className="text-base font-semibold leading-[24px] tracking-tight">
@@ -176,36 +186,21 @@ export default function SelectPage() {
               </div>
             </div>
           </div>
-          {/* Display AI Analysis Results */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg max-w-md">
-            <h3 className="font-semibold mb-2">AI Analysis Results:</h3>
-            <div className="text-sm space-y-1">
-              <p>
-                <strong>Age:</strong> {updatedAttributes.age || analysisData.age}
-              </p>
-              <p>
-                <strong>Skin Type:</strong>{' '}
-                {updatedAttributes.skinType || analysisData.skinType}
-              </p>
-              <p>
-                <strong>Plausibility:</strong>{' '}
-                {updatedAttributes.plausibility || analysisData.plausibility}%
-              </p>
-              {updatedAttributes.demographics && (
-                <p>
-                  <strong>Demographics:</strong>{' '}
-                  {JSON.stringify(updatedAttributes.demographics)}
-                </p>
-              )}
-            </div>
-            {isUpdating && (
-              <p className="text-xs text-gray-500 mt-2">Updating...</p>
-            )}
-          </div>
         </div>
         <div className="pt-4 md:pt-12 pb-8 bg-white sticky md:static bottom-40 mb-0 md:mb-0">
           <div className="flex justify-between max-w-full mx-auto px-13 md:px-9">
-            <BackButton href="/result" />
+            <Link href="/result">
+              <div>
+                <div className="relative w-12 h-12 flex items-center justify-center border border-[#1A1B1C] rotate-45 scale-[1] sm:hidden">
+                  <span className="rotate-[-45deg] text-xs font-semibold sm:hidden">BACK</span>
+                </div>
+                <div className="group hidden sm:flex flex-row relative justify-center items-center">
+                  <div className="w-12 h-12 hidden sm:flex justify-center border border-[#1A1B1C] rotate-45 scale-[0.85] group-hover:scale-[0.92] ease duration-300"></div>
+                  <span className="absolute left-[15px] bottom-[13px] scale-[0.9] rotate-180 hidden sm:block group-hover:scale-[0.92] ease duration-300">▶</span>
+                  <span className="text-sm font-semibold hidden sm:block ml-6">BACK</span>
+                </div>
+              </div>
+            </Link>
             <Link href="/summary">
               <div>
                 <div className="w-12 h-12 flex items-center justify-center border border-[#1A1B1C] rotate-45 scale-[1] sm:hidden">
