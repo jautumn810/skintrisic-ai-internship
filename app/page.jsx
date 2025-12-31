@@ -5,7 +5,7 @@ import Link from 'next/link'
 import SiteHeader from '../components/SiteHeader'
 
 export default function Home() {
-  const headingRef = useRef<HTMLHeadingElement>(null)
+  const headingRef = useRef(null)
 
   useEffect(() => {
     // Animate heading opacity on mount
