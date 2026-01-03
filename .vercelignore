@@ -6,9 +6,12 @@ node_modules
 dist
 build
 app
+app.old.backup
 pages.legacy
 js
 lib
 components
 css
 styles.css
+next.config.js
+next.config.js.backup
